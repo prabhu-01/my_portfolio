@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { ChevronDown, Zap, Utensils, PawPrint, Lightbulb, Target, GitBranch, MessageSquare } from 'lucide-react'
+import { ChevronDown, Zap, Utensils, PawPrint, Lightbulb, Target, GitBranch, MessageSquare, Cpu } from 'lucide-react'
 
 const projects = [
   {
@@ -10,15 +10,32 @@ const projects = [
     statusColor: '#22D3EE',
     status: 'SHIPPED',
     title: 'Payment Automation System',
-    tagline: 'Built in 48 hours for a hackathon. Won. Then realised the problem was real.',
+    tagline: 'Finance teams at mid-sized companies are drowning in manual reconciliation. I built the layer that fixes that.',
     tags: ['Automation', 'Fintech', 'B2B'],
-    context: "This started as a hackathon idea but the problem we were solving is genuinely painful. Finance teams at mid-sized companies are drowning in manual reconciliation — copying numbers between systems, chasing approvals over email, fixing errors nobody spotted until month-end.",
-    whatWeBuilt: "An end-to-end payment automation layer: bank API integration, approval routing logic, automated reconciliation, and a dashboard that shows finance teams exactly where every payment is and why. We built it in 48 hours. Rough, but it worked.",
-    whatISawAfterwards: "The judges were impressed, but more interesting — one of the mentors pulled me aside and said 'we've been trying to solve this internally for two years'. That's when I knew it wasn't just a hackathon project.",
-    hardPart: "The hardest part wasn't the tech. It was figuring out the approval logic — every company has different rules, exceptions, and edge cases. A generic solution doesn't fit. You'd need to build configurability in from the start.",
+    context: "The problem is genuinely painful. Finance teams spend days every month copying numbers between systems, chasing approvals over email, and fixing errors nobody spots until month-end. It's not a niche problem — it's every company that's grown past spreadsheets but hasn't invested in enterprise tooling.",
+    whatWeBuilt: "An end-to-end payment automation layer: bank API integration, approval routing logic, automated reconciliation, and a dashboard that shows finance teams exactly where every payment is and why. Built to be configurable from the ground up — because every company's approval rules are different.",
+    whatISawAfterwards: "After showing it to a few people, one pulled me aside and said 'we've been trying to solve this internally for two years'. That's the signal I look for — not excitement, but recognition of pain.",
+    hardPart: "The approval logic. Every company has different rules, exceptions, and edge cases. A rigid system breaks immediately in production. The architecture had to be rule-based and configurable, not hardcoded.",
     architecture: ['Bank API Layer', 'Approval Engine', 'Reconciliation Module', 'Finance Dashboard'],
-    whatNext: "If I were to take this further: SMB SaaS, $30-50/user/month, integration with Xero and QuickBooks. The moat would be the reconciliation logic — that's where the real time is saved.",
-    metrics: { Built: '48 hours', Result: 'Hackathon win', Signal: 'Real problem confirmed' },
+    whatNext: "SMB SaaS, $30–50/user/month, integrations with Xero and QuickBooks. The moat is the reconciliation logic — that's where the real time gets saved and where switching cost builds.",
+    metrics: { Target: 'Finance teams', Model: 'B2B SaaS', Status: 'Shipped' },
+  },
+  {
+    id: 4,
+    icon: Cpu,
+    accent: '#34D399',
+    statusColor: '#34D399',
+    status: 'SHIPPED',
+    title: 'AI Predictive Maintenance — Smart Homes',
+    tagline: 'Most devices break without warning. I built a system that tells you before they do.',
+    tags: ['AI/ML', 'IoT', 'Python'],
+    context: "Smart home devices fail unpredictably — and when they do, it's always at the wrong time. The existing approach is reactive: something breaks, you fix it. The opportunity is to flip that: use the device's own sensor data to predict failure before it happens.",
+    whatWeBuilt: "A Python-based ML pipeline using Scikit-Learn and Pandas that ingests real-time sensor data from smart home devices — usage patterns, temperature, load, anomaly signals — and predicts which devices are approaching failure. PostgreSQL handles historical maintenance logs and real-time sensor streams. The model outputs a maintenance schedule before anything actually breaks.",
+    whatISawAfterwards: "The interesting finding was how much signal is buried in data people already have. Most smart home platforms collect this data and do nothing with it. The prediction model doesn't need exotic inputs — it needs consistent, well-structured historical data.",
+    hardPart: "Getting clean training data. Failure events are rare by definition, so the dataset is heavily imbalanced. Had to build synthetic failure scenarios from degradation patterns to give the model enough signal.",
+    architecture: ['Sensor Data Ingestion', 'ML Pipeline (Scikit-Learn)', 'PostgreSQL Storage', 'Maintenance Scheduler'],
+    whatNext: "The real play is B2B — white-labelling this for smart home platform providers or home warranty companies. They have the data, the customer relationships, and a direct financial incentive to reduce repair costs.",
+    metrics: { Stack: 'Python · Scikit-Learn', Storage: 'PostgreSQL', Approach: 'Predictive ML' },
   },
   {
     id: 2,
