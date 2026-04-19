@@ -1,7 +1,35 @@
-import { useState, useRef } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { useState, useRef, type ReactNode, type CSSProperties } from 'react'
+import { motion, AnimatePresence, useInView, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { ChevronDown, Zap, Utensils, PawPrint, Lightbulb, Target, GitBranch, MessageSquare, Cpu } from 'lucide-react'
 
+/* ── 3D Tilt wrapper ────────────────────────────── */
+function TiltCard({ children, className, style, onClick }: { children: ReactNode; className?: string; style?: CSSProperties; onClick?: () => void }) {
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const rotateX = useSpring(useTransform(y, [-60, 60], [4, -4]), { stiffness: 260, damping: 24 })
+  const rotateY = useSpring(useTransform(x, [-60, 60], [-4, 4]), { stiffness: 260, damping: 24 })
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    x.set(e.clientX - rect.left - rect.width  / 2)
+    y.set(e.clientY - rect.top  - rect.height / 2)
+  }
+  return (
+    <div className="perspective-wrap">
+      <motion.div
+        className={className}
+        style={{ ...style, rotateX, rotateY, transformStyle: 'preserve-3d' }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => { x.set(0); y.set(0) }}
+        onClick={onClick}
+      >
+        {children}
+      </motion.div>
+    </div>
+  )
+}
+
+/* ── Project data ──────────────────────────────── */
 const projects = [
   {
     id: 1,
@@ -44,7 +72,7 @@ const projects = [
     statusColor: '#FBBF24',
     status: 'BUILDING',
     title: 'Kitchen Nutrition System',
-    tagline: 'I was tracking my own macros and getting frustrated. That\'s usually where the real ideas come from.',
+    tagline: "I was tracking my own macros and getting frustrated. That's usually where the real ideas come from.",
     tags: ['Health', 'Consumer', 'Habit'],
     context: "I'm serious about training. That means I track nutrition. Every app I tried treated food like a database query — scan barcode, log it, done. But cooking doesn't work like that. I make a chicken stir-fry with whatever's in the fridge. No barcode. No exact weights.",
     whatWeBuilt: "Designing a system that understands meals, not just ingredients. You tell it what you made — rough quantities, cooking method — and it figures out the nutrition. It learns your habits. It doesn't ask you to be a lab scientist.",
@@ -75,40 +103,60 @@ const projects = [
 
 type Project = typeof projects[0]
 
+/* ── Project Card ───────────────────────────────── */
 function Card({ project: p, index }: { project: Project; index: number }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef(null)
+  const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-50px' })
-  const Icon = p.icon
+  const Icon   = p.icon
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 50 }} animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: index * 0.14, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y: 60 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ delay: index * 0.13, duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div
-        className="glass rounded-2xl overflow-hidden cursor-pointer transition-all duration-500"
-        style={{ border: open ? `1px solid ${p.accent}40` : '1px solid rgba(255,255,255,0.07)', boxShadow: open ? `0 0 40px ${p.accent}18` : 'none' }}
+      <TiltCard
+        className="rounded-2xl overflow-hidden cursor-pointer transition-all duration-500"
+        style={{
+          background: 'rgba(255,255,255,0.035)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: open ? `1px solid ${p.accent}45` : '1px solid rgba(255,255,255,0.07)',
+          boxShadow: open
+            ? `0 0 60px ${p.accent}20, 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07)`
+            : '0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
+        } as CSSProperties}
         onClick={() => setOpen(!open)}
       >
-        {/* Header */}
+        {/* ── Header ── */}
         <div className="p-7">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4 flex-1 min-w-0">
-              <div className="p-3 rounded-xl flex-shrink-0 mt-0.5"
-                   style={{ background: `${p.accent}18`, border: `1px solid ${p.accent}30` }}>
+
+              <motion.div
+                className="p-3 rounded-xl flex-shrink-0 mt-0.5 transition-all duration-300"
+                style={{ background: `${p.accent}18`, border: `1px solid ${p.accent}30` }}
+                animate={open ? { rotate: 8, scale: 1.05 } : { rotate: 0, scale: 1 }}
+              >
                 <Icon size={20} style={{ color: p.accent }} />
-              </div>
+              </motion.div>
+
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <span className="text-[9px] font-bold tracking-[0.2em] px-2 py-0.5 rounded-full"
-                        style={{ color: p.statusColor, background: `${p.statusColor}15`, border: `1px solid ${p.statusColor}25` }}>
+                  <span
+                    className="text-[9px] font-bold tracking-[0.2em] px-2 py-0.5 rounded-full"
+                    style={{ color: p.statusColor, background: `${p.statusColor}15`, border: `1px solid ${p.statusColor}28` }}
+                  >
                     ● {p.status}
                   </span>
                   {p.tags.map(t => (
-                    <span key={t} className="text-[9px] font-medium px-2 py-0.5 rounded-full text-[#4B5563]"
-                          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <span
+                      key={t}
+                      className="text-[9px] font-medium px-2 py-0.5 rounded-full text-[#4B5563]"
+                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+                    >
                       {t}
                     </span>
                   ))}
@@ -117,13 +165,18 @@ function Card({ project: p, index }: { project: Project; index: number }) {
                 <p className="text-sm text-[#9CA3AF] leading-relaxed italic">"{p.tagline}"</p>
               </div>
             </div>
-            <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.3 }}
-                        className="flex-shrink-0 p-2 rounded-xl text-[#4B5563] transition-all"
-                        style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+
+            <motion.div
+              animate={{ rotate: open ? 180 : 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="flex-shrink-0 p-2 rounded-xl text-[#4B5563] transition-all"
+              style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+            >
               <ChevronDown size={16} />
             </motion.div>
           </div>
 
+          {/* Metrics footer */}
           <div className="flex gap-6 mt-5 pt-5" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
             {Object.entries(p.metrics).map(([k, v]) => (
               <div key={k}>
@@ -134,46 +187,68 @@ function Card({ project: p, index }: { project: Project; index: number }) {
           </div>
         </div>
 
-        {/* Expanded */}
+        {/* ── Expanded content ── */}
         <AnimatePresence>
           {open && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.38, ease: [0.4, 0, 0.2, 1] }}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.42, ease: [0.4, 0, 0.2, 1] }}
               style={{ overflow: 'hidden' }}
             >
-              <div className="px-7 pb-7" style={{ borderTop: `1px solid ${p.accent}20` }}>
-                <div className="flex flex-col gap-4 mt-6">
+              {/* Accent top border */}
+              <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${p.accent}40, transparent)` }} />
 
+              <div className="px-7 pb-7">
+                <div className="flex flex-col gap-4 mt-6">
                   {[
-                    { icon: Lightbulb, color: p.accent,  label: 'What sparked it',        body: p.context         },
-                    { icon: GitBranch, color: '#A78BFA',  label: 'What we actually built', body: p.whatWeBuilt     },
-                    { icon: Target,    color: '#22D3EE',  label: 'What I saw afterwards',  body: p.whatISawAfterwards },
-                    { icon: MessageSquare, color:'#F472B6',label: 'The hard part',          body: p.hardPart        },
-                  ].map(b => {
+                    { icon: Lightbulb,     color: p.accent,  label: 'What sparked it',        body: p.context            },
+                    { icon: GitBranch,     color: '#A78BFA', label: 'What we actually built',  body: p.whatWeBuilt        },
+                    { icon: Target,        color: '#22D3EE', label: 'What I saw afterwards',   body: p.whatISawAfterwards },
+                    { icon: MessageSquare, color: '#F472B6', label: 'The hard part',            body: p.hardPart           },
+                  ].map((b, bi) => {
                     const BIcon = b.icon
                     return (
-                      <div key={b.label} className="rounded-xl p-5"
-                           style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <motion.div
+                        key={b.label}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: bi * 0.07, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                        className="rounded-xl p-5"
+                        style={{
+                          background: 'rgba(255,255,255,0.025)',
+                          border: '1px solid rgba(255,255,255,0.06)',
+                        }}
+                      >
                         <div className="flex items-center gap-2 mb-3">
                           <BIcon size={13} style={{ color: b.color }} />
                           <span className="text-[10px] font-bold tracking-widest uppercase text-[#4B5563]">{b.label}</span>
                         </div>
                         <p className="text-sm text-[#9CA3AF] leading-relaxed">{b.body}</p>
-                      </div>
+                      </motion.div>
                     )
                   })}
 
-                  {/* System + next */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="rounded-xl p-5"
-                         style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  {/* System + Next */}
+                  <motion.div
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <div
+                      className="rounded-xl p-5"
+                      style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    >
                       <p className="text-[10px] font-bold tracking-widest uppercase text-[#4B5563] mb-3">How it's structured</p>
                       <div className="flex flex-wrap gap-2">
                         {p.architecture.map((item, i) => (
                           <div key={item} className="flex items-center gap-1.5">
-                            <span className="text-xs font-medium px-2.5 py-1 rounded-lg"
-                                  style={{ color: p.accent, background: `${p.accent}12`, border: `1px solid ${p.accent}25` }}>
+                            <span
+                              className="text-xs font-medium px-2.5 py-1 rounded-lg"
+                              style={{ color: p.accent, background: `${p.accent}12`, border: `1px solid ${p.accent}25` }}
+                            >
                               {item}
                             </span>
                             {i < p.architecture.length - 1 && <span className="text-xs text-[#4B5563]">→</span>}
@@ -181,48 +256,90 @@ function Card({ project: p, index }: { project: Project; index: number }) {
                         ))}
                       </div>
                     </div>
-                    <div className="rounded-xl p-5"
-                         style={{ background: `${p.accent}08`, border: `1px solid ${p.accent}20` }}>
+
+                    <div
+                      className="rounded-xl p-5"
+                      style={{ background: `${p.accent}09`, border: `1px solid ${p.accent}22` }}
+                    >
                       <p className="text-[10px] font-bold tracking-widest uppercase text-[#4B5563] mb-3">If I took it further</p>
                       <p className="text-sm leading-relaxed" style={{ color: p.accent }}>{p.whatNext}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </TiltCard>
     </motion.div>
   )
 }
 
+/* ── Section ────────────────────────────────────── */
 export default function Projects() {
-  const ref = useRef(null)
+  const ref    = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
     <section id="projects" ref={ref} className="relative py-32">
       <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
-        <div className="orb" style={{ width: 400, height: 400, bottom: 0, left: -80, background: 'radial-gradient(circle, rgba(34,211,238,.2) 0%, transparent 70%)', opacity: .16 }} />
+        <div
+          className="orb"
+          style={{
+            width: 450, height: 450,
+            bottom: 0, left: -80,
+            background: 'radial-gradient(circle, rgba(34,211,238,.22) 0%, transparent 70%)',
+            opacity: .14,
+          }}
+        />
       </div>
+
       <div className="relative w-full max-w-5xl mx-auto px-6" style={{ zIndex: 1 }}>
 
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, y: 40 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
           className="mb-16"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-px w-12" style={{ background: 'linear-gradient(to right, transparent, #22D3EE)' }} />
+            <motion.div
+              initial={{ scaleX: 0 }} animate={inView ? { scaleX: 1 } : {}}
+              transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="h-px w-12 origin-left"
+              style={{ background: 'linear-gradient(to right, transparent, #22D3EE)' }}
+            />
             <span className="section-label text-[#22D3EE]">Work</span>
           </div>
-          <h2 className="section-heading text-white mb-4">
-            Things I've built,<br />
-            <span className="text-gradient-cyan">thought through, and shipped.</span>
+
+          <h2 className="section-heading text-white mb-4 overflow-hidden">
+            <motion.span
+              className="block"
+              initial={{ y: 60, opacity: 0 }}
+              animate={inView ? { y: 0, opacity: 1 } : {}}
+              transition={{ delay: 0.15, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            >
+              Things I've built,
+            </motion.span>
+            <motion.span
+              className="block text-gradient-cyan"
+              initial={{ y: 60, opacity: 0 }}
+              animate={inView ? { y: 0, opacity: 1 } : {}}
+              transition={{ delay: 0.26, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            >
+              thought through, and shipped.
+            </motion.span>
           </h2>
-          <p className="text-base text-[#9CA3AF] max-w-xl leading-relaxed">
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.4, duration: 0.7 }}
+            className="text-base text-[#9CA3AF] max-w-xl leading-relaxed"
+          >
             Not a portfolio of pretty screenshots. Click into any project — I'll show you the actual thinking, what surprised me, and what I'd do differently.
-          </p>
+          </motion.p>
         </motion.div>
 
         <div className="flex flex-col gap-5">

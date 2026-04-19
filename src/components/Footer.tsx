@@ -22,35 +22,80 @@ const XIcon = () => (
 )
 
 const socials = [
-  { Icon:LinkedInIcon, label:'LinkedIn', href:'https://linkedin.com'  },
-  { Icon:GitHubIcon,   label:'GitHub',   href:'https://github.com'    },
-  { Icon:XIcon,        label:'Twitter',  href:'https://twitter.com'   },
+  { Icon: LinkedInIcon, label: 'LinkedIn', href: 'https://linkedin.com/in/prabhubarik' },
+  { Icon: GitHubIcon,   label: 'GitHub',   href: 'https://github.com/prabhubarik'      },
+  { Icon: XIcon,        label: 'Twitter',  href: 'https://twitter.com/prabhubarik'     },
 ]
 
 export default function Footer() {
   return (
-    <footer className="relative border-t py-12 px-6" style={{ borderColor:'rgba(255,255,255,0.05)' }}>
-      <div className="max-w-6xl mx-auto">
+    <footer className="relative py-12 px-6 overflow-hidden">
+      {/* Top border with gradient */}
+      <div
+        className="absolute top-0 left-0 right-0 h-px"
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(167,139,250,0.25), rgba(34,211,238,0.15), transparent)' }}
+      />
+
+      {/* Subtle background glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 60% 40% at 50% 100%, rgba(124,58,237,0.06) 0%, transparent 70%)',
+        }}
+      />
+
+      <div className="relative max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
 
           {/* Logo */}
-          <div className="flex flex-col items-center sm:items-start gap-1">
-            <span className="text-2xl font-black text-white" style={{ fontFamily:'var(--font-heading)' }}>PRABHU</span>
-            <span className="text-xs text-[#4B5563] font-mono">Built by Prabhu · {new Date().getFullYear()}</span>
-          </div>
+          <motion.div
+            className="flex flex-col items-center sm:items-start gap-1"
+            whileHover={{ y: -2 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+          >
+            <a href="#" className="group">
+              <span
+                className="text-2xl font-black text-white transition-all duration-300 group-hover:text-gradient-purple"
+                style={{ fontFamily: 'var(--font-heading)' }}
+              >
+                PRABHU
+              </span>
+            </a>
+            <span className="text-xs text-[#4B5563] font-mono">Built with intention · {new Date().getFullYear()}</span>
+          </motion.div>
 
           {/* Socials */}
           <div className="flex items-center gap-3">
-            {socials.map(({ Icon, label, href }) => (
+            {socials.map(({ Icon, label, href }, i) => (
               <motion.a
-                key={label} href={href} target="_blank" rel="noopener noreferrer"
-                whileHover={{ y:-3, scale:1.05 }}
-                transition={{ type:'spring', stiffness:400, damping:20 }}
-                className="glass p-2.5 rounded-xl text-[#4B5563] transition-colors duration-200 hover:text-white"
-                style={{ border:'1px solid rgba(255,255,255,0.07)' }}
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={label}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(167,139,250,0.3)')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
+                whileHover={{ y: -4, scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-2.5 rounded-xl text-[#4B5563] transition-all duration-250 cursor-pointer"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                  backdropFilter: 'blur(10px)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'rgba(167,139,250,0.35)'
+                  e.currentTarget.style.color = '#A78BFA'
+                  e.currentTarget.style.background = 'rgba(167,139,250,0.08)'
+                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(124,58,237,0.2)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'
+                  e.currentTarget.style.color = '#4B5563'
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
               >
                 <Icon />
               </motion.a>
@@ -59,22 +104,34 @@ export default function Footer() {
 
           {/* Status */}
           <div className="flex items-center gap-2 text-xs text-[#4B5563]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#22D3EE] animate-pulse" />
+            <span
+              className="w-1.5 h-1.5 rounded-full bg-[#22D3EE] animate-pulse"
+              style={{ boxShadow: '0 0 6px #22D3EE' }}
+            />
             Open to opportunities
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4"
-             style={{ borderTop:'1px solid rgba(255,255,255,0.04)' }}>
+        {/* Bottom row */}
+        <div
+          className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
+        >
           <p className="text-[10px] text-[#4B5563] font-mono">Designed & developed with intention. No templates.</p>
-          <a
+          <motion.a
             href="#"
-            className="flex items-center gap-1.5 text-[10px] text-[#4B5563] font-mono group transition-colors duration-200 hover:text-[#A78BFA]"
+            className="flex items-center gap-1.5 text-[10px] font-mono group transition-colors duration-200 cursor-pointer"
+            style={{ color: '#4B5563' }}
+            whileHover={{ y: -2 }}
+            onMouseEnter={e => (e.currentTarget.style.color = '#A78BFA')}
+            onMouseLeave={e => (e.currentTarget.style.color = '#4B5563')}
           >
             Back to top
-            <ArrowUpRight size={10} className="group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
-          </a>
+            <ArrowUpRight
+              size={10}
+              className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            />
+          </motion.a>
         </div>
       </div>
     </footer>
